@@ -104,7 +104,7 @@ void tester(void) {
 	}
 	//	test: erase()
 	while (map.begin() != map.end()) {
-        std::cout<<map.begin()->second<<std::endl;
+        //std::cout<<map.begin()->second<<std::endl;
 		map.erase(map.begin());
 	}
 	assert(map.empty() && map.size() == 0);

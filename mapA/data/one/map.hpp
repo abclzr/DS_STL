@@ -246,13 +246,13 @@ private:
                 if (p != nil) p->nxt = q;
                 if (q != nil) q->pre = p;
                 if (r->red) {
-                    if (r == root) root = r;
+                    if (r == root) root = nil;
                     else r->fa->ch[r->pl()] = nil;
                     delete r;
                     --size;
                 } else {
                     delete_fix(r);
-                    if (r == root) root = r;
+                    if (r == root) root = nil;
                     else r->fa->ch[r->pl()] = nil;
                     delete r;
                     --size;
