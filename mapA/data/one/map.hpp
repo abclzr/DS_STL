@@ -237,27 +237,26 @@ private:
                 r->swap_except_v(t);
                 if (root == r) root = t;
                 remove(r);
-            } else {
+            } else if  (r->ch[0] == nil && r->ch[1] == nil) {
                 node *p = r->pre, *q = r->nxt;
                 if (p != nil) p->nxt = q;
                 if (q != nil) q->pre = p;
                 if (r->red) {
-                    node *child = r->ch[0];
-                    if (child == nil) child = r->ch[1];
-                    r->fa->setc(child, r->pl());
-                    if (r == root) root = child;
+                    if (r == root) root = r;
+                    else r->fa->ch[r->pl()] = nil;
                     delete r;
-                    --size;
                 } else {
-                    node *child = r->ch[0];
-                    if (child == nil) child = r->ch[1];
-                    r->fa->setc(child, r->pl());
-                    if (r == root) root = child;
+                    delete_fix(r);
+                    if (r == root) root = r;
                     delete r;
-                    --size;
-                    if (child->red) child->red = false;
-                    else delete_fix(child);
                 }
+            } else {
+                node *p = r->pre, *q = r->nxt;
+                if (p != nil) p->nxt = q;
+                if (q != nil) q->pre = p;
+                r->swap_except_v(r->ch[1]);
+                if (root == r) root = r->fa;
+                remove(r);
             }
         }
 
@@ -294,7 +293,6 @@ private:
                         r->pre = p; r->nxt = q;
                         if (p != nil) p->nxt = r;
                         if (q != nil) q->pre = r;
-                        if (p == nil) head = r;
                         insert_fix(r);
                         return pair<node *, bool>(r, true);
                     }
@@ -309,7 +307,6 @@ private:
                         r->pre = p; r->nxt = q;
                         if (p != nil) p->nxt = r;
                         if (q != nil) q->pre = r;
-                        if (p == nil) head = r;
                         insert_fix(r);
                         return pair<node *, bool>(r, true);
                     }
@@ -338,7 +335,6 @@ private:
                         r->pre = p; r->nxt = q;
                         if (p != nil) p->nxt = r;
                         if (q != nil) q->pre = r;
-                        if (p == nil) head = r;
                         insert_fix(r);
                         return r;
                     }
@@ -353,7 +349,6 @@ private:
                         r->pre = p; r->nxt = q;
                         if (p != nil) p->nxt = r;
                         if (q != nil) q->pre = r;
-                        if (p == nil) head = r;
                         insert_fix(r);
                         return r;
                     }

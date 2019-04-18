@@ -63,6 +63,7 @@ void tester(void) {
 		}
 		assert(map.count(Integer(i)) == 1);
 		assert(map.find(Integer(i)) != map.end());
+        printf("%d\n", i);
 		map.erase(map.find(Integer(i)));
 	}
 	//	test: constructor, operator=, clear();
