@@ -156,11 +156,15 @@ private:
             delete nil;
         }
 
-        node *newtree(node *r) {
+        node *newtree(node *r, node *left, node *right) {
             if (r->size == 0) return nil;
             node *t = new node(*r);
-            t->setc(newtree(r->ch[0]), 0);
-            t->setc(newtree(r->ch[1]), 1);
+            t->pre = left;
+            t->nxt = right;
+            if (left != nil) left->nxt = t;
+            if (right != nil) right->pre = t;
+            t->setc(newtree(r->ch[0], left, t), 0);
+            t->setc(newtree(r->ch[1], t, right), 1);
             return t;
         }
 
@@ -245,16 +249,22 @@ private:
                     if (r == root) root = r;
                     else r->fa->ch[r->pl()] = nil;
                     delete r;
+                    --size;
                 } else {
                     delete_fix(r);
                     if (r == root) root = r;
+                    else r->fa->ch[r->pl()] = nil;
                     delete r;
+                    --size;
                 }
             } else {
                 node *p = r->pre, *q = r->nxt;
                 if (p != nil) p->nxt = q;
                 if (q != nil) q->pre = p;
-                r->swap_except_v(r->ch[1]);
+                if (r->ch[0] == nil)
+                    r->swap_except_v(r->ch[1]);
+                else
+                    r->swap_except_v(r->ch[0]);
                 if (root == r) root = r->fa;
                 remove(r);
             }
@@ -569,7 +579,7 @@ public:
 	map() {
     }
 	map(const map &other) {
-        TREE.root = TREE.newtree(other.TREE.root);
+        TREE.root = TREE.newtree(other.TREE.root, TREE.nil, TREE.nil);
         TREE.size = other.size();
         TREE.head = TREE.get_head();
     }
@@ -578,9 +588,8 @@ public:
 	 */
 	map & operator=(const map &other) {
         TREE.release(TREE.root);
-        TREE.root = TREE.newtree(other.TREE.root);
+        TREE.root = TREE.newtree(other.TREE.root, TREE.nil, TREE.nil);
         TREE.size = other.size();
-        TREE.head = TREE.get_head();
         return *this;
     }
 	/**
@@ -625,10 +634,14 @@ public:
 	 * return a iterator to the beginning
 	 */
 	iterator begin() {
-        return iterator(TREE.get_head(), &TREE);
+        typename RB_Tree::node *p = TREE.get_head();
+        if (p == TREE.nil) p = nullptr;
+        return iterator(p, &TREE);
     }
 	const_iterator cbegin() const {
-        return const_iterator(TREE.get_head(), (const RB_Tree*) &TREE);
+        typename RB_Tree::node *p = TREE.get_head();
+        if (p == TREE.nil) p = nullptr;
+        return const_iterator(p, (const RB_Tree*) &TREE);
     }
 	/**
 	 * return a iterator to the end
