@@ -296,10 +296,10 @@ private:
                     if (r->ch[0] != nil)
                         r = r->ch[0];
                     else {
+                        node *q = r, *p = r->pre;
                         r->setc(new node(V, nil), 0);
                         ++size;
                         r = r->ch[0];
-                        node *p = get_pre(r), *q = get_nxt(r);
                         r->pre = p; r->nxt = q;
                         if (p != nil) p->nxt = r;
                         if (q != nil) q->pre = r;
@@ -310,10 +310,10 @@ private:
                     if (r->ch[1] != nil)
                         r = r->ch[1];
                     else {
+                        node *p = r, *q = r->nxt;
                         r->setc(new node(V, nil), 1);
                         ++size;
                         r = r->ch[1];
-                        node *p = get_pre(r), *q = get_nxt(r);
                         r->pre = p; r->nxt = q;
                         if (p != nil) p->nxt = r;
                         if (q != nil) q->pre = r;

@@ -222,10 +222,10 @@ bool check6(){ // copy test
 	stdit = stdQ.begin();
     int cnt = 0;
 	for(it = Q1.begin(); it != Q1.end(); it++){
+        //printf("%d %d\n", stdit->first, it->first);
 		if(stdit -> first != it -> first) return 0;
 		if(stdit -> second != (*it).second) return 0;
 		stdit++;
-        printf("%d\n", ++cnt);
 	}
 	stdit = --stdQ.end();
 	for(it = --Q1.end(); it != Q1.begin(); it--){
@@ -510,7 +510,7 @@ void easy_test(){
 
 int main(){
 	//freopen("testans_advance.out", "w", stdout);
-	srand(time(NULL));
+	srand(3);
 	easy_test();
 	if(!check1()) cout << "Test 1 Failed..." << endl; else cout << "Test 1 Passed!" << endl;
 	if(!check2()) cout << "Test 2 Failed..." << endl; else cout << "Test 2 Passed!" << endl;
