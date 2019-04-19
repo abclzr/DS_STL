@@ -220,10 +220,12 @@ bool check6(){ // copy test
 	if(Q.size() != 0 || Q.begin() != Q.end()) return 0;
 	
 	stdit = stdQ.begin();
+    int cnt = 0;
 	for(it = Q1.begin(); it != Q1.end(); it++){
 		if(stdit -> first != it -> first) return 0;
 		if(stdit -> second != (*it).second) return 0;
 		stdit++;
+        printf("%d\n", ++cnt);
 	}
 	stdit = --stdQ.end();
 	for(it = --Q1.end(); it != Q1.begin(); it--){
@@ -498,6 +500,8 @@ void easy_test(){
 			left[num[i]]++;
 		}
 	}
+    cout << Q.count_red() << endl;
+    cout << Q.size() << endl;
 	for(it = Q.begin(); it != Q.end(); ++it){ 
 		cout << it -> first << " "  << it -> second << " ";
 	}
