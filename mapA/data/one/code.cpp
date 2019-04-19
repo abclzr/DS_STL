@@ -66,6 +66,7 @@ void tester(void) {
 		map.erase(map.find(Integer(i)));
 	}
 	//	test: constructor, operator=, clear();
+	std::cout << Integer::counter << std::endl;
 	for (int i = 0; i < (int)map.size(); ++i) {
 		sjtu::map<Integer, std::string, Compare> copy(map);
 		map.clear();
@@ -108,6 +109,11 @@ void tester(void) {
 		map.erase(map.begin());
 	}
 	assert(map.empty() && map.size() == 0);
+    
+
+	std::cout << Integer::counter << std::endl;
+
+
 	//	test: operator[]
 	for (int i = 0; i < 100000; ++i) {
 		std::cout << map[Integer(i)];

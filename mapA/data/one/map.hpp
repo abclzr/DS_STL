@@ -153,7 +153,7 @@ private:
 
         ~RB_Tree() {
             release(root);
-            delete nil;
+            operator delete(nil);
         }
 
         node *newtree(node *r, node *left, node *right) {
@@ -329,6 +329,7 @@ private:
             auto cmp = Compare();
             if (r == nil) {
                 root = new node(key, nil);
+                ++size;
                 root->red = false;
                 return root;
             }
@@ -581,7 +582,6 @@ public:
 	map(const map &other) {
         TREE.root = TREE.newtree(other.TREE.root, TREE.nil, TREE.nil);
         TREE.size = other.size();
-        TREE.head = TREE.get_head();
     }
 	/**
 	 * TODO assignment operator
