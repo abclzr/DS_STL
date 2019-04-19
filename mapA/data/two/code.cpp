@@ -510,7 +510,7 @@ void easy_test(){
 
 int main(){
 	//freopen("testans_advance.out", "w", stdout);
-	srand(3);
+	srand(time(NULL));
 	easy_test();
 	if(!check1()) cout << "Test 1 Failed..." << endl; else cout << "Test 1 Passed!" << endl;
 	if(!check2()) cout << "Test 2 Failed..." << endl; else cout << "Test 2 Passed!" << endl;

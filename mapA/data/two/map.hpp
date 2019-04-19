@@ -466,10 +466,10 @@ public:
 		 * some other operator for iterator.
 		 */
 		bool operator!=(const iterator &rhs) const {
-            return p != rhs.p;
+            return p != rhs.p || RB != rhs.RB;
         }
 		bool operator!=(const const_iterator &rhs) const {
-            return p != rhs.p;
+            return p != rhs.p || RB != rhs.RB;
         }
 
 		/**
@@ -555,10 +555,10 @@ public:
 			 * some other operator for iterator.
 			 */
 			bool operator!=(const iterator &rhs) const {
-		        return p != rhs.p;
+		        return p != rhs.p || RB != rhs.RB;
 		    }
 			bool operator!=(const const_iterator &rhs) const {
-		        return p != rhs.p;
+		        return p != rhs.p || RB != rhs.RB;
 		    }
 
 			/**
@@ -671,6 +671,7 @@ public:
 	 */
 	void clear() {
         TREE.release(TREE.root);
+        TREE.size = 0;
         TREE.root = TREE.head = TREE.nil;
     }
 	/**
