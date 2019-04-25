@@ -9,22 +9,21 @@ namespace sjtu {
 
 template<class T>
 class deque {
-public:
+private:
 
     struct node {
         node *pre, *nxt;
         T v;
         node(const node &other) : v(other.v), pre(nullptr), nxt(nullptr) {}
-        node(const T &r) : v(r), pre(nullptr), nxt(nullptr);
+        node(const T &r) : v(r), pre(nullptr), nxt(nullptr) {}
     };
 
-    class list<class T> { 
+    class list { 
     public:
         node *head, *tail;
         int size;
         
-        list() : head(nullptr), tail(nullptr), size(0), {
-        }
+        list() : head(nullptr), tail(nullptr), size(0) {}
 
         list(const list &other) : size(other.size), head(nullptr), tail(nullptr) {
             node *t = other.head;
@@ -41,7 +40,7 @@ public:
         }
 
         ~list() {
-            node *t = head, t2;
+            node *t = head, *t2;
             while (t != nullptr) {
                 t2 = t;
                 t  = t->nxt;
@@ -117,9 +116,22 @@ public:
             }
         }
 
-        void del(int k) {
+        node *add_before(node *t, const T &a) {
+            node *p = t->pre, *q = t;
+            node *r = new node(a);
+            ++size;
+            r->pre = p; r->nxt = q;
+            if (p != nullptr) p->nxt = r;
+            if (q != nullptr) q->pre = r;
+            if (head == t) head = r;
+            return r;
+        }
+
+        node *del(int k) {
             if (k < 1 || k > size)
                 throw index_out_of_bound();
+            if (size == 0)
+                throw container_is_empty();
             --size;
             node *t = head;
             while (--k) t = t->nxt;
@@ -127,15 +139,20 @@ public:
             delete t;
             if (p != nullptr) p->nxt = q;
             if (q != nullptr) q->pre = p;
+            return q;
         }
 
-        void del(node *t) {
+        node *del(node *t) {
+            if (size == 0)
+                throw container_is_empty();
+            node *mark = t->nxt;
             if (t->pre != nullptr) t->pre->nxt = t->nxt;
             if (t->nxt != nullptr) t->nxt->pre = t->pre;
             --size;
             if (head == t) head = t->nxt;
             if (tail == t) tail = t->pre;
             delete t;
+            return mark;
         }
 
         T &operator[](int k) {
@@ -207,12 +224,16 @@ public:
         }
     };
 
-
+    struct list_node;
+    
+public:
 	class const_iterator;
 	class iterator {
+        friend class deque;
 	private:
         list_node *p;
         node *t;
+        deque *D;
 
         int get_pos() const {
             node *it = t;
@@ -255,7 +276,7 @@ public:
             int k = n;
             while (k-- && t->pre != nullptr) t = t->pre;
             if (k == 0) return;
-            if (ip->pre == nullptr)
+            if (p->pre == nullptr)
                 throw runtime_error();
             p = p->pre;
             while (p->size() < k && p->pre != nullptr)
@@ -273,6 +294,9 @@ public:
 		 *   just add whatever you want.
 		 */
 	public:
+        iterator() : p(nullptr), t(nullptr), D(nullptr) {}
+        iterator(const iterator &other) : p(other.p), t(other.t), D(other.D) {}
+        iterator(node *_t, list_node *_p, deque *_D) : p(_p), t(_t), D(_D) {}
 		/**
 		 * return a new iterator which pointer n-next elements
 		 *   even if there are not enough elements, the behaviour is **undefined**.
@@ -293,7 +317,7 @@ public:
 		// return th distance between two iterator,
 		// if these two iterators points to different vectors, throw invaild_iterator.
 		int operator-(const iterator &rhs) const {
-            return rhs.get_pos() - get_pos();
+            return get_pos() - rhs.get_pos();
 		}
 		iterator operator+=(const int &n) {
             if (n > 0) move_back(n);
@@ -372,14 +396,163 @@ public:
 	class const_iterator {
 		// it should has similar member method as iterator.
 		//  and it should be able to construct from an iterator.
+            friend class deque;
 		private:
             const list_node *p;
             const node *t;
+            const deque *D;
 			// data members.
+			
+		    int get_pos() const {
+		        node *it = t;
+		        list_node *ip = p;
+		        int ret = 0;
+		        while (it != nullptr) {
+		            it = it->pre;
+		            ++ret;
+		        }
+		        ip = ip->pre;
+		        while (ip != nullptr) {
+		            ret += ip->l.size;
+		            ip = ip->pre;
+		        }
+		        return ret;
+		    }
+
+		    void move_back(const int &n) {
+		        if (t == nullptr || p == nullptr)
+		            throw invalid_iterator();
+		        int k = n;
+		        while (k-- && t->nxt != nullptr) t = t->nxt;
+		        if (k == 0) return;
+		        if (p->nxt == nullptr)
+		            throw runtime_error();
+		        p = p->nxt;
+		        while (p->size() < k && p->nxt != nullptr)
+		            k -= p->size(), p = p->nxt;
+		        if (p->size() >= k) {
+		           t = p->l.head;
+		           while (--k) t = t->nxt;
+		           return;
+		        } else
+		            throw runtime_error();
+			}
+		    
+		    void move_front(const int &n) {
+		        if (t == nullptr || p == nullptr)
+		            throw invalid_iterator();
+		        int k = n;
+		        while (k-- && t->pre != nullptr) t = t->pre;
+		        if (k == 0) return;
+		        if (p->pre == nullptr)
+		            throw runtime_error();
+		        p = p->pre;
+		        while (p->size() < k && p->pre != nullptr)
+		            k -= p->size(), p = p->pre;
+		        if (p->size() >= k) {
+		            t = p->l.tail;
+		            while (--k) t = t->pre;
+		            return;
+		        } else
+		            throw runtime_error();
+		    }
+
 		public:
-			const_iterator() : p(nullptr), t(nullptr) {}
-			const_iterator(const const_iterator &other) : p(other.p), t(other.t) {}
-			const_iterator(const iterator &other) : p(other.p), t(other.t) {}
+			const_iterator() : p(nullptr), t(nullptr), D(nullptr) {}
+			const_iterator(const const_iterator &other) : p(other.p), t(other.t), D(other.D) {}
+			const_iterator(const iterator &other) : p(other.p), t(other.t), D(other.D) {}
+            const_iterator(const node *_t, const list_node *_p, const deque *_D) : p(_p), t(_t), D(_D) {}
+			
+			const_iterator operator+(const int &n) const {
+		        const_iterator it = (*this);
+		        if (n > 0) it.move_back(n);
+		        else it.move_front(-n);
+		        return it;
+			}
+			const_iterator operator-(const int &n) const {
+		        const_iterator it = (*this);
+		        if (n > 0) it.move_front(n);
+		        else it.move_back(-n);
+		        return it;
+			}
+			// return th distance between two iterator,
+			// if these two iterators points to different vectors, throw invaild_iterator.
+			int operator-(const const_iterator &rhs) const {
+		        return get_pos() - rhs.get_pos();
+			}
+			const_iterator operator+=(const int &n) {
+		        if (n > 0) move_back(n);
+		        else move_front(-n);
+		        return *this;
+			}
+			const_iterator operator-=(const int &n) {
+		        if (n > 0) move_front(n);
+		        else move_back(-n);
+		        return *this;
+			}
+			/**
+			 * TODO iter++
+			 */
+			const_iterator operator++(int) {
+		        const_iterator a = (*this);
+		        move_back(1);
+		        return a;
+		    }
+			/**
+			 * TODO ++iter
+			 */
+			const_iterator& operator++() {
+		        move_back(1);
+		        return *this;
+		    }
+			/**
+			 * TODO iter--
+			 */
+			const_iterator operator--(int) {
+		        const_iterator a = (*this);
+		        move_front(1);
+		        return a;
+		    }
+			/**
+			 * TODO --iter
+			 */
+			const_iterator& operator--() {
+		        move_front(1);
+		        return *this;
+		    }
+			/**
+			 * TODO *it
+			 */
+			T& operator*() const {
+		        if (t == nullptr || p == nullptr)
+		            throw invalid_iterator();
+		        return t->v;
+		    }
+			/**
+			 * TODO it->field
+			 */
+			T* operator->() const noexcept {
+		        if (t == nullptr || p == nullptr) return nullptr;
+		        return &t->v;
+		    }
+			/**
+			 * a operator to check whether two iterators are same (pointing to the same memory).
+			 */
+			bool operator==(const iterator &rhs) const {
+		        return p == rhs.p && t == rhs.t;
+		    }
+			bool operator==(const const_iterator &rhs) const {
+		        return p == rhs.p && t == rhs.t;
+		    }
+			/**
+			 * some other operator for iterator.
+			 */
+			bool operator!=(const iterator &rhs) const {
+		        return p != rhs.p || t != rhs.t;
+		    }
+			bool operator!=(const const_iterator &rhs) const {
+		        return p != rhs.p || t != rhs.t;
+		    }
 	};
 
 private:
@@ -396,9 +569,17 @@ private:
         int size() {
             return l.size;
         }
+        bool have(node *t) {
+            node *tmp = l.head;
+            while (tmp != nullptr) {
+                if (t == tmp) return true;
+                tmp = tmp->nxt;
+            }
+            return false;
+        }
     };
 
-    void balance(list_node *t) {
+    list_node *balance(list_node *t) {
         if (t->l.size > B) {
             list_node *l1 = new list_node(), *l2 = new list_node();
             t->l.split(l1->l, l2->l);
@@ -411,6 +592,7 @@ private:
             if (head == t) head = l1;
             if (tail == t) tail = l2;
             operator delete(t);
+            return l1;
         } else if (t->l.size < b) {
            while (t->pre != nullptr && t->pre->size() + t->l.size <= B ) {
                t->l.merge_front(t->pre->l);
@@ -429,16 +611,20 @@ private:
                operator delete (d);
            }
         }
+        return t;
     }
 
     list_node *head, *tail;
-    int size;
+    int s;
 
+public:
 	/**
 	 * TODO Constructors
 	 */
-	deque() : head(nullptr), tail(nullptr), size(0) {}
-	deque(const deque &other) : size(other.size), head(nullptr), tail(nullptr) {
+	deque() : s(0) {
+        head = tail = new list_node();
+    }
+	deque(const deque &other) : s(other.s), head(nullptr), tail(nullptr) {
         list_node *t = other.head;
         while (t != nullptr) {
             if (head == nullptr) {
@@ -462,7 +648,7 @@ private:
 	 */
 	deque &operator=(const deque &other) {
         clear();
-        size = other.size;
+        s = other.s;
         list_node *t = other.head;
         while (t != nullptr) {
             if (head == nullptr) {
@@ -481,7 +667,7 @@ private:
 	 * throw index_out_of_bound if out of bound.
 	 */
 	T & at(const size_t &pos) {
-        if (pos < 0 || pos > size)
+        if (pos < 0 || pos > s)
             throw index_out_of_bound();
         list_node *t = head;
         int k = pos + 1;
@@ -495,7 +681,7 @@ private:
     }
     
 	const T & at(const size_t &pos) const {
-        if (pos < 0 || pos > size)
+        if (pos < 0 || pos > s)
             throw index_out_of_bound();
         list_node *t = head;
         int k = pos + 1;
@@ -509,7 +695,7 @@ private:
     }
 
 	T & operator[](const size_t &pos) {
-        if (pos < 0 || pos > size)
+        if (pos < 0 || pos > s)
             throw index_out_of_bound();
         list_node *t = head;
         int k = pos + 1;
@@ -523,7 +709,7 @@ private:
     }
     
 	const T & operator[](const size_t &pos) const {
-        if (pos < 0 || pos > size)
+        if (pos < 0 || pos > s)
             throw index_out_of_bound();
         list_node *t = head;
         int k = pos + 1;
@@ -540,7 +726,7 @@ private:
 	 * throw container_is_empty when the container is empty.
 	 */
 	const T & front() const {
-        if (size == 0)
+        if (s == 0)
             throw container_is_empty();
         return head->l.front();
     }
@@ -549,37 +735,43 @@ private:
 	 * throw container_is_empty when the container is empty.
 	 */
 	const T & back() const {
-        if (size == 0)
+        if (s == 0)
             throw container_is_empty();
         return tail->l.back();
     }
 	/**
 	 * returns an iterator to the beginning.
 	 */
-	iterator begin() {}
-	const_iterator cbegin() const {}
+	iterator begin() {
+        if (head == nullptr) return iterator(nullptr, nullptr, this);
+        else return iterator(head->l.head, head, this);
+    }
+	const_iterator cbegin() const {
+        if (head == nullptr) return const_iterator(nullptr, nullptr, this);
+        else return const_iterator(head->l.head, head, this);
+    }
 	/**
 	 * returns an iterator to the end.
 	 */
-	iterator end() {}
-	const_iterator cend() const {}
+	iterator end() {
+        if (tail == nullptr) return iterator(nullptr, nullptr, this);
+        else return iterator(tail->l.tail, tail, this);
+    }
+	const_iterator cend() const {
+        if (tail == nullptr) return const_iterator(nullptr, nullptr, this);
+        else return const_iterator(tail->l.tail, tail, this);
+    }
 	/**
 	 * checks whether the container is empty.
 	 */
 	bool empty() const {
-        return size == 0;
-    }
-	/**
-	 * returns the number of elements
-	 */
-	size_t size() const {
-        return size;
+        return s == 0;
     }
 	/**
 	 * clears the contents
 	 */
 	void clear() {
-        size = 0;
+        s = 0;
         list_node *t = head, *t2;
         while (t != nullptr) {
             t2 = t;
@@ -589,37 +781,72 @@ private:
         head = tail = nullptr;
     }
 	/**
+	 * returns the number of elements
+	 */
+	size_t size() const {
+        return s;
+    }
+	/**
 	 * inserts elements at the specified locat on in the container.
 	 * inserts value before pos
 	 * returns an iterator pointing to the inserted value
 	 *     throw if the iterator is invalid or it point to a wrong place.
 	 */
-	iterator insert(iterator pos, const T &value) {}
+	iterator insert(iterator pos, const T &value) {
+        if (pos.p == nullptr || pos.t == nullptr)
+            throw invalid_iterator();
+        node *t = pos.p->l.add_before(pos.t, value);
+        list_node *p = balance(pos.p);
+        if (!p->have(t)) p = p->nxt;
+        ++s;
+        return iterator(t, p, pos.D);
+    }
 	/**
 	 * removes specified element at pos.
 	 * removes the element at pos.
 	 * returns an iterator pointing to the following element, if pos pointing to the last element, end() will be returned.
 	 * throw if the container is empty, the iterator is invalid or it points to a wrong place.
 	 */
-	iterator erase(iterator pos) {}
+	iterator erase(iterator pos) {
+        if (pos.p == nullptr || pos.t == nullptr)
+            throw invalid_iterator();
+        node *t = pos.p->l.del(pos.t);
+        --s;
+        list_node *p = pos.p;
+        if (t == nullptr) {
+            p = p->nxt;
+            if (p != nullptr) t = p->l.head;
+            else t = nullptr;
+            list_node *mark = balance(pos.p);
+            if (t == nullptr)
+                return iterator(nullptr, nullptr, pos.D);
+            else {
+                if (mark->have(t)) p = mark;
+                return iterator(t, p, pos.D);
+            }
+        }
+
+        list_node *mark = balance(p);
+        return iterator(t, mark, pos.D);
+    }
 	/**
 	 * adds an element to the end
 	 */
 	void push_back(const T &value) {
         tail->l.push_back(value);
         balance(tail);
-        ++size;
+        ++s;
     }
 	/**
 	 * removes the last element
 	 *     throw when the container is empty.
 	 */
 	void pop_back() {
-        if (size == 0)
+        if (s == 0)
             throw container_is_empty();
         tail->l.pop_back();
         balance(tail);
-        --size;
+        --s;
     }
 	/**
 	 * inserts an element to the beginning.
@@ -627,18 +854,18 @@ private:
 	void push_front(const T &value) {
         head->l.push_front(value);
         balance(head);
-        ++size;
+        ++s;
     }
 	/**
 	 * removes the first element.
 	 *     throw when the container is empty.
 	 */
 	void pop_front() {
-        if (size == 0)
+        if (s == 0)
             throw container_is_empty();
         head->l.pop_front();
         balance(head);
-        --size;
+        --s;
     }
 };
 
