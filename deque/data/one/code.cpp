@@ -43,6 +43,7 @@ void TestInteger()
 }
 void TestMatrix()
 {
+    return;
 	std::cout << "Test 2 : Test for Matrix, a class with dynamic members...";
 	sjtu::deque<Diamond::Matrix<double>> dM;
 	std::vector<Diamond::Matrix<double>> vM;
@@ -59,6 +60,7 @@ void TestMatrix()
 
 void TestBint()
 {
+    return;
 	std::cout << "Test 3 : Test for big integer...";
 	sjtu::deque<Util::Bint> dBint;
 	std::vector<Util::Bint> vBint;
@@ -81,6 +83,7 @@ void TestCopyConstructorAndOperatorEqu()
 	pInt = new sjtu::deque<long long>;
 	for (long long i = 0; i < N; ++i) {
 		pInt -> push_back(i);
+        printf("%d\n", i);
 	}
 	sjtu::deque<long long> &dInt = *pInt;
 	sjtu::deque<long long> dualInt(dInt);

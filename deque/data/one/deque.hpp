@@ -833,6 +833,8 @@ public:
 	 * adds an element to the end
 	 */
 	void push_back(const T &value) {
+        //static int times = 0;
+        //printf("%d\n",++times);
         tail->l.push_back(value);
         balance(tail);
         ++s;
