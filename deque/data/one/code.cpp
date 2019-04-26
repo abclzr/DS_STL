@@ -35,6 +35,7 @@ void TestInteger()
 		vInt.push_back(Integer(randNum(i, N + 17)));
 		dInt.push_back(vInt[i]);
 	}
+    puts("-111");
 	for (int i = 0; i < N; ++i) {
 		if (!(vInt[i] == dInt[i]))
 			error();
@@ -43,7 +44,6 @@ void TestInteger()
 }
 void TestMatrix()
 {
-    return;
 	std::cout << "Test 2 : Test for Matrix, a class with dynamic members...";
 	sjtu::deque<Diamond::Matrix<double>> dM;
 	std::vector<Diamond::Matrix<double>> vM;
@@ -83,7 +83,6 @@ void TestCopyConstructorAndOperatorEqu()
 	pInt = new sjtu::deque<long long>;
 	for (long long i = 0; i < N; ++i) {
 		pInt -> push_back(i);
-        printf("%d\n", i);
 	}
 	sjtu::deque<long long> &dInt = *pInt;
 	sjtu::deque<long long> dualInt(dInt);
@@ -204,6 +203,7 @@ void TestPopAndPush()
 int main()
 {
 	TestInteger();
+    return 0;
 	TestMatrix();
 	TestBint();
 	TestCopyConstructorAndOperatorEqu();
