@@ -15,7 +15,7 @@ private:
         node *pre, *nxt;
         T v;
         node(const node &other) : v(other.v), pre(nullptr), nxt(nullptr) {}
-        node(const T &r) : v(r), pre(nullptr), nxt(nullptr) {}
+        explicit node(const T &r) : v(r), pre(nullptr), nxt(nullptr) {}
     };
 
     class list { 
@@ -48,7 +48,7 @@ private:
             }
         }
 
-        void push_front(const T &a) {
+        node *push_front(const T &a) {
             if (head == nullptr) {
                 head = tail = new node(a);
                 size = 1;
@@ -58,9 +58,10 @@ private:
                 head->pre->nxt = head;
                 head = head->pre;
             }
+            return head;
         }
 
-        void push_back(const T &a) {
+        node *push_back(const T &a) {
             if (tail == nullptr) {
                 head = tail = new node(a);
                 size = 1;
@@ -70,6 +71,7 @@ private:
                 tail->nxt->pre = tail;
                 tail = tail->nxt;
             }
+            return tail;
         }
 
         void pop_front() {
@@ -252,6 +254,7 @@ public:
         }
 
         void move_back(const int &n) {
+            if (n == 0) return;
             if (t == nullptr || p == nullptr)
                 throw invalid_iterator();
             int k = n;
@@ -281,6 +284,7 @@ public:
 		}
         
         void move_front(const int &n) {
+            if (n == 0) return;
             int k = n;
             if (t == nullptr && p == nullptr) {
                 p = D->tail;
@@ -806,9 +810,11 @@ public:
 	 *     throw if the iterator is invalid or it point to a wrong place.
 	 */
 	iterator insert(iterator pos, const T &value) {
+	    node *t;
         if (pos.p == nullptr || pos.t == nullptr)
-            throw invalid_iterator();
-        node *t = pos.p->l.add_before(pos.t, value);
+            t = push_back(value), pos.p = tail;
+        else
+            t = pos.p->l.add_before(pos.t, value);
         list_node *p = balance(pos.p);
         if (!p->have(t)) p = p->nxt;
         ++s;
@@ -845,12 +851,13 @@ public:
 	/**
 	 * adds an element to the end
 	 */
-	void push_back(const T &value) {
+	node *push_back(const T &value) {
         //static int times = 0;
         //printf("%d\n",++times);
-        tail->l.push_back(value);
+        node *t = tail->l.push_back(value);
         balance(tail);
         ++s;
+        return t;
     }
 	/**
 	 * removes the last element
@@ -866,10 +873,11 @@ public:
 	/**
 	 * inserts an element to the beginning.
 	 */
-	void push_front(const T &value) {
-        head->l.push_front(value);
+	node *push_front(const T &value) {
+        node *t = head->l.push_front(value);
         balance(head);
         ++s;
+        return t;
     }
 	/**
 	 * removes the first element.
