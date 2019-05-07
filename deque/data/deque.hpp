@@ -437,61 +437,76 @@ public:
             const node *t;
             const deque *D;
 			// data members.
-			
-		    int get_pos() const {
-		        if (t == nullptr && p == nullptr) return D->s + 1;
-		        const node *it = t;
-		        const list_node *ip = p;
-		        int ret = 0;
-		        while (it != nullptr) {
-		            it = it->pre;
-		            ++ret;
-		        }
-		        ip = ip->pre;
-		        while (ip != nullptr) {
-		            ret += ip->l.size;
-		            ip = ip->pre;
-		        }
-		        return ret;
-		    }
 
-		    void move_back(const int &n) {
-		        if (t == nullptr || p == nullptr)
-		            throw invalid_iterator();
-		        int k = n;
-		        while (k-- && t->nxt != nullptr) t = t->nxt;
-		        if (k == 0) return;
-		        if (p->nxt == nullptr)
-		            throw runtime_error();
-		        p = p->nxt;
-		        while (p->size() < k && p->nxt != nullptr)
-		            k -= p->size(), p = p->nxt;
-		        if (p->size() >= k) {
-		           t = p->l.head;
-		           while (--k) t = t->nxt;
-		           return;
-		        } else
-		            throw runtime_error();
-			}
-		    
-		    void move_front(const int &n) {
-		        if (t == nullptr || p == nullptr)
-		            throw invalid_iterator();
-		        int k = n;
-		        while (k-- && t->pre != nullptr) t = t->pre;
-		        if (k == 0) return;
-		        if (p->pre == nullptr)
-		            throw runtime_error();
-		        p = p->pre;
-		        while (p->size() < k && p->pre != nullptr)
-		            k -= p->size(), p = p->pre;
-		        if (p->size() >= k) {
-		            t = p->l.tail;
-		            while (--k) t = t->pre;
-		            return;
-		        } else
-		            throw runtime_error();
-		    }
+            int get_pos() const {
+                if (t == nullptr && p == nullptr) return D->s + 1;
+                const node *it = t;
+                const list_node *ip = p;
+                int ret = 0;
+                while (it != nullptr) {
+                    it = it->pre;
+                    ++ret;
+                }
+                ip = ip->pre;
+                while (ip != nullptr) {
+                    ret += ip->l.size;
+                    ip = ip->pre;
+                }
+                return ret;
+            }
+
+            void move_back(const int &n) {
+                if (n == 0) return;
+                if (t == nullptr || p == nullptr)
+                    throw invalid_iterator();
+                int k = n;
+                while (k && t->nxt != nullptr)
+                    t = t->nxt, --k;
+                if (k == 0) return;
+                if (p->nxt == nullptr) {
+                    if (k == 1)
+                        t = nullptr, p = nullptr;
+                    else
+                        throw runtime_error();
+                    return;
+                }
+                p = p->nxt;
+                while (p->size() < k && p->nxt != nullptr)
+                    k -= p->size(), p = p->nxt;
+                if (p->size() >= k) {
+                    t = p->l.head;
+                    while (--k) t = t->nxt;
+                    return;
+                } else {
+                    if (k == p->l.size + 1)
+                        t = nullptr, p = nullptr;
+                    else
+                        throw runtime_error();
+                }
+            }
+
+            void move_front(const int &n) {
+                if (n == 0) return;
+                int k = n;
+                if (t == nullptr && p == nullptr) {
+                    p = D->tail;
+                    t = p->l.tail;
+                    --k;
+                }
+                while (k && t->pre != nullptr) t = t->pre, --k;
+                if (k == 0) return;
+                if (p->pre == nullptr)
+                    throw runtime_error();
+                p = p->pre;
+                while (p->size() < k && p->pre != nullptr)
+                    k -= p->size(), p = p->pre;
+                if (p->size() >= k) {
+                    t = p->l.tail;
+                    while (--k) t = t->pre;
+                    return;
+                } else
+                    throw runtime_error();
+            }
 
 		public:
 			const_iterator() : p(nullptr), t(nullptr), D(nullptr) {}
