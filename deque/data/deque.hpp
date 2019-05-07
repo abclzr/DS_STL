@@ -351,6 +351,7 @@ public:
 		// return th distance between two iterator,
 		// if these two iterators points to different vectors, throw invaild_iterator.
 		int operator-(const iterator &rhs) const {
+            if (D != rhs.D) throw invalid_iterator();
             return get_pos() - rhs.get_pos();
 		}
 		iterator operator+=(const int &n) {
@@ -412,10 +413,10 @@ public:
 		 * a operator to check whether two iterators are same (pointing to the same memory).
 		 */
 		bool operator==(const iterator &rhs) const {
-            return p == rhs.p && t == rhs.t;
+            return p == rhs.p && t == rhs.t && D == rhs.D;
         }
 		bool operator==(const const_iterator &rhs) const {
-            return p == rhs.p && t == rhs.t;
+            return p == rhs.p && t == rhs.t && D == rhs.D;
         }
 		/**
 		 * some other operator for iterator.
@@ -439,8 +440,8 @@ public:
 			
 		    int get_pos() const {
 		        if (t == nullptr && p == nullptr) return D->s + 1;
-		        node *it = t;
-		        list_node *ip = p;
+		        const node *it = t;
+		        const list_node *ip = p;
 		        int ret = 0;
 		        while (it != nullptr) {
 		            it = it->pre;
@@ -513,6 +514,7 @@ public:
 			// return th distance between two iterator,
 			// if these two iterators points to different vectors, throw invaild_iterator.
 			int operator-(const const_iterator &rhs) const {
+		        if (D != rhs.D) throw invalid_iterator();
 		        return get_pos() - rhs.get_pos();
 			}
 			const_iterator operator+=(const int &n) {
@@ -566,7 +568,7 @@ public:
 			/**
 			 * TODO it->field
 			 */
-			T* operator->() const noexcept {
+			const T* operator->() const noexcept {
 		        if (t == nullptr || p == nullptr) return nullptr;
 		        return &t->v;
 		    }
@@ -574,10 +576,10 @@ public:
 			 * a operator to check whether two iterators are same (pointing to the same memory).
 			 */
 			bool operator==(const iterator &rhs) const {
-		        return p == rhs.p && t == rhs.t;
+		        return p == rhs.p && t == rhs.t && D == rhs.D;
 		    }
 			bool operator==(const const_iterator &rhs) const {
-		        return p == rhs.p && t == rhs.t;
+		        return p == rhs.p && t == rhs.t && D == rhs.D;
 		    }
 			/**
 			 * some other operator for iterator.
@@ -601,7 +603,7 @@ private:
         list_node() : l(), pre(nullptr), nxt(nullptr) {}
         list_node(const list_node &other) : l(other.l), pre(nullptr), nxt(nullptr) {}
         ~list_node() {}
-        int size() {
+        int size() const {
             return l.size;
         }
         bool have(node *t) {
