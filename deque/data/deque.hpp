@@ -199,6 +199,14 @@ private:
 
         void merge_front(list &other) {
             size += other.size;
+            if (head == nullptr && tail == nullptr) {
+                head = other.head;
+                tail = other.tail;
+                return;
+            }
+            if (other.head == nullptr && other.tail == nullptr) {
+                return;
+            }
             if (head != nullptr) head->pre = other.tail;
             if (other.tail != nullptr) other.tail->nxt = head;
             head = other.head;
@@ -206,6 +214,14 @@ private:
 
         void merge_back(list &other) {
             size += other.size;
+            if (head == nullptr && tail == nullptr) {
+                head = other.head;
+                tail = other.tail;
+                return;
+            }
+            if (other.head == nullptr && other.tail == nullptr) {
+                return;
+            }
             if (tail != nullptr) tail->nxt = other.head;
             if (other.head != nullptr) other.head->pre = tail;
             tail = other.tail;
@@ -238,6 +254,7 @@ public:
         deque *D;
 
         int get_pos() const {
+            if (t == nullptr && p == nullptr) return D->s + 1;
             node *it = t;
             list_node *ip = p;
             int ret = 0;
@@ -276,7 +293,7 @@ public:
                while (--k) t = t->nxt;
                return;
             } else {
-                if (k == 1)
+                if (k == p->l.size + 1)
                     t = nullptr, p = nullptr;
                 else
                     throw runtime_error();
@@ -421,6 +438,7 @@ public:
 			// data members.
 			
 		    int get_pos() const {
+		        if (t == nullptr && p == nullptr) return D->s + 1;
 		        node *it = t;
 		        list_node *ip = p;
 		        int ret = 0;
@@ -540,7 +558,7 @@ public:
 			/**
 			 * TODO *it
 			 */
-			T& operator*() const {
+			const T& operator*() const {
 		        if (t == nullptr || p == nullptr)
 		            throw invalid_iterator();
 		        return t->v;
@@ -685,7 +703,7 @@ public:
 	 * throw index_out_of_bound if out of bound.
 	 */
 	T & at(const size_t &pos) {
-        if (pos < 0 || pos > s)
+        if (pos < 0 || pos >= s)
             throw index_out_of_bound();
         list_node *t = head;
         int k = pos + 1;
@@ -699,7 +717,7 @@ public:
     }
     
 	const T & at(const size_t &pos) const {
-        if (pos < 0 || pos > s)
+        if (pos < 0 || pos >= s)
             throw index_out_of_bound();
         list_node *t = head;
         int k = pos + 1;
@@ -713,7 +731,7 @@ public:
     }
 
 	T & operator[](const size_t &pos) {
-        if (pos < 0 || pos > s)
+        if (pos < 0 || pos >= s)
             throw index_out_of_bound();
         list_node *t = head;
         int k = pos + 1;
@@ -727,7 +745,7 @@ public:
     }
     
 	const T & operator[](const size_t &pos) const {
-        if (pos < 0 || pos > s)
+        if (pos < 0 || pos >= s)
             throw index_out_of_bound();
         list_node *t = head;
         int k = pos + 1;
@@ -761,11 +779,11 @@ public:
 	 * returns an iterator to the beginning.
 	 */
 	iterator begin() {
-        if (head == nullptr) return iterator(nullptr, nullptr, this);
+        if (s == 0) return iterator(nullptr, nullptr, this);
         else return iterator(head->l.head, head, this);
     }
 	const_iterator cbegin() const {
-        if (head == nullptr) return const_iterator(nullptr, nullptr, this);
+        if (s == 0) return const_iterator(nullptr, nullptr, this);
         else return const_iterator(head->l.head, head, this);
     }
 	/**
@@ -821,6 +839,8 @@ public:
 	 *     throw if the iterator is invalid or it point to a wrong place.
 	 */
 	iterator insert(iterator pos, const T &value) {
+	    if (pos.D != this)
+	        throw invalid_iterator();
 	    node *t;
         if (pos.p == nullptr || pos.t == nullptr)
             t = push_back(value), pos.p = tail, --s;
@@ -838,6 +858,8 @@ public:
 	 * throw if the container is empty, the iterator is invalid or it points to a wrong place.
 	 */
 	iterator erase(iterator pos) {
+        if (pos.D != this)
+            throw invalid_iterator();
         if (pos.p == nullptr || pos.t == nullptr)
             throw invalid_iterator();
         node *t = pos.p->l.del(pos.t);
