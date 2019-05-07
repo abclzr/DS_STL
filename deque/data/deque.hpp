@@ -609,8 +609,8 @@ public:
 
 private:
 
-    static const int B = 500;
-    static const int b = 250;
+    static const int B = 400;
+    static const int b = 200;
 
     struct list_node {
         list_node *pre, *nxt;
