@@ -658,14 +658,14 @@ public:
 	 * TODO Deconstructor
 	 */
 	~deque() {
-        clear();
+        clear2();
     }
 	/**
 	 * TODO assignment operator
 	 */
 	deque &operator=(const deque &other) {
 	    if (&other == this) return *this;
-        clear();
+        clear2();
         s = other.s;
         list_node *t = other.head;
         while (t != nullptr) {
@@ -787,7 +787,7 @@ public:
 	/**
 	 * clears the contents
 	 */
-	void clear() {
+    void clear2() {
         s = 0;
         list_node *t = head, *t2;
         while (t != nullptr) {
@@ -796,6 +796,17 @@ public:
             delete t2;
         }
         head = tail = nullptr;
+    }
+
+    void clear() {
+        s = 0;
+        list_node *t = head, *t2;
+        while (t != nullptr) {
+            t2 = t;
+            t = t->nxt;
+            delete t2;
+        }
+        head = tail = new list_node();
     }
 	/**
 	 * returns the number of elements
@@ -812,7 +823,7 @@ public:
 	iterator insert(iterator pos, const T &value) {
 	    node *t;
         if (pos.p == nullptr || pos.t == nullptr)
-            t = push_back(value), pos.p = tail;
+            t = push_back(value), pos.p = tail, --s;
         else
             t = pos.p->l.add_before(pos.t, value);
         list_node *p = balance(pos.p);
